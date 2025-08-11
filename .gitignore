@@ -11,3 +11,28 @@
 
 pkg/
 src/
+
+# VIOLET-AF build artifacts
+.quantum_key
+.quantum_master_key
+encrypted_states/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
