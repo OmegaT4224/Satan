@@ -1,0 +1,103 @@
+{
+  "version": "1.0",
+  "uid": "ALC-ROOT-1010-1111-XCOV\u221e",
+  "chain_length": 7,
+  "last_updated": 1754929235.321105,
+  "entries": [
+    {
+      "entry_id": "GENESIS_000",
+      "timestamp": 1754929100.0662174,
+      "uid": "ALC-ROOT-1010-1111-XCOV\u221e",
+      "operation_type": "chain_genesis",
+      "operation_data": {
+        "chain_version": "1.0",
+        "created_by": "Andrew Lee Cruz",
+        "creation_purpose": "VIOLET-AF Quantum Automation Security",
+        "uid_binding": "ALC-ROOT-1010-1111-XCOV\u221e",
+        "genesis_timestamp": 1754929100.0662167
+      },
+      "security_level": "creator",
+      "entry_hash": "d6b286b8575e186a463fcf043794105eef02b15bb2e78c4290e66514bca1e8bd",
+      "previous_hash": null,
+      "encryption_enabled": false
+    },
+    {
+      "entry_id": "REFLECT_000001_1754929100",
+      "timestamp": 1754929100.0663974,
+      "uid": "ALC-ROOT-1010-1111-XCOV\u221e",
+      "operation_type": "test_operation",
+      "operation_data": {
+        "encrypted": "ENC:eyJ0ZXN0IjogImRhdGEiLCAidWlkIjogIkFMQy1ST09ULTEwMTAtMTExMS1YQ09WXHUyMjFlIn0=:e4abc5029700c2727bc961ff253be1eb455fc05b44a4c5725826a5539108302d"
+      },
+      "security_level": "high",
+      "entry_hash": "3da87b00c16af7f54c179b0b5aa49a366284d5fcf6237a3700543616a2fb1da0",
+      "previous_hash": "d6b286b8575e186a463fcf043794105eef02b15bb2e78c4290e66514bca1e8bd",
+      "encryption_enabled": true
+    },
+    {
+      "entry_id": "REFLECT_000002_1754929154",
+      "timestamp": 1754929154.290171,
+      "uid": "ALC-ROOT-1010-1111-XCOV\u221e",
+      "operation_type": "quantum_operation",
+      "operation_data": {
+        "encrypted": "ENC:eyJjaXJjdWl0X2lkIjogInRlc3RfMTIzIiwgIm9wZXJhdGlvbiI6ICJjaXJjdWl0X2V4ZWN1dGlvbiIsICJzdWNjZXNzIjogdHJ1ZSwgInVpZCI6ICJBTEMtUk9PVC0xMDEwLTExMTEtWENPVlx1MjIxZSJ9:2d3dad2b9cfc6c79f948e0762648fa1f02a219539357ca00c7b8f60af66291ee"
+      },
+      "security_level": "high",
+      "entry_hash": "fc017f1495c3966af995d905acfd849d9062a869cf7d65492bb274771a08f1df",
+      "previous_hash": "3da87b00c16af7f54c179b0b5aa49a366284d5fcf6237a3700543616a2fb1da0",
+      "encryption_enabled": true
+    },
+    {
+      "entry_id": "REFLECT_000003_1754929154",
+      "timestamp": 1754929154.2904134,
+      "uid": "ALC-ROOT-1010-1111-XCOV\u221e",
+      "operation_type": "security_event",
+      "operation_data": {
+        "encrypted": "ENC:eyJldmVudF90eXBlIjogImF1dGhlbnRpY2F0aW9uIiwgInJlc3VsdCI6ICJzdWNjZXNzIiwgInVpZCI6ICJBTEMtUk9PVC0xMDEwLTExMTEtWENPVlx1MjIxZSJ9:baec6c315721710edf13cb6fbbff58d3d204f26cc3c63ffda819c146f1abc6f5"
+      },
+      "security_level": "high",
+      "entry_hash": "afa1a82a3c8c60858bd3d5cc56dbae84681ae31159f1dbd349d20d15b60ab23c",
+      "previous_hash": "fc017f1495c3966af995d905acfd849d9062a869cf7d65492bb274771a08f1df",
+      "encryption_enabled": true
+    },
+    {
+      "entry_id": "REFLECT_000004_1754929235",
+      "timestamp": 1754929235.320499,
+      "uid": "ALC-ROOT-1010-1111-XCOV\u221e",
+      "operation_type": "violet_launch",
+      "operation_data": {
+        "encrypted": "ENC:eyJjaXJjdWl0X2lkIjogIlZJT0xFVC1BRi0xNzU0OTI5MjM0IiwgImxhdW5jaF9zdWNjZXNzIjogdHJ1ZSwgInNlY3VyaXR5X3ZhbGlkYXRlZCI6IHRydWUsICJ1aWQiOiAiQUxDLVJPT1QtMTAxMC0xMTExLVhDT1ZcdTIyMWUifQ==:5fb015659aa68edf5e0284d1db5bbcb01facb497a67a70e36c46c0423c59eb5a"
+      },
+      "security_level": "high",
+      "entry_hash": "1975e21a01976930833a961c53e9adeb3a6414e2c3f425f28b5545817a5b7994",
+      "previous_hash": "afa1a82a3c8c60858bd3d5cc56dbae84681ae31159f1dbd349d20d15b60ab23c",
+      "encryption_enabled": true
+    },
+    {
+      "entry_id": "REFLECT_000005_1754929235",
+      "timestamp": 1754929235.320795,
+      "uid": "ALC-ROOT-1010-1111-XCOV\u221e",
+      "operation_type": "quantum_execution",
+      "operation_data": {
+        "encrypted": "ENC:eyJjaXJjdWl0X2lkIjogIlZJT0xFVC1BRi0xNzU0OTI5MjM0IiwgImV4ZWN1dGlvbl90aW1lIjogMC4xMjMsICJpbnRlZ3JpdHlfdmVyaWZpZWQiOiB0cnVlLCAibWVhc3VyZW1lbnRzIjogWzEsIDAsIDFdLCAidWlkIjogIkFMQy1ST09ULTEwMTAtMTExMS1YQ09WXHUyMjFlIn0=:b4e500330615c0d12ebd8f1483cc58da61855051eab4ba046917ff314458e013"
+      },
+      "security_level": "high",
+      "entry_hash": "156871780bc85e39d5c7fe03076ae1a3cf956316d9e4634ee13ca72084f51fe7",
+      "previous_hash": "1975e21a01976930833a961c53e9adeb3a6414e2c3f425f28b5545817a5b7994",
+      "encryption_enabled": true
+    },
+    {
+      "entry_id": "REFLECT_000006_1754929235",
+      "timestamp": 1754929235.3210902,
+      "uid": "ALC-ROOT-1010-1111-XCOV\u221e",
+      "operation_type": "security_event",
+      "operation_data": {
+        "encrypted": "ENC:eyJjbGVhcmFuY2VfbGV2ZWwiOiAiQ1JFQVRPUiIsICJldmVudF90eXBlIjogImF1dGhlbnRpY2F0aW9uX3N1Y2Nlc3MiLCAidGltZXN0YW1wIjogMTc1NDkyOTIzNS4zMjA0Njk2LCAidWlkIjogIkFMQy1ST09ULTEwMTAtMTExMS1YQ09WXHUyMjFlIn0=:2e1c1528f7d94463be341bfdd10b701445e20ac18ca0aaa02c0f145640111cf0"
+      },
+      "security_level": "high",
+      "entry_hash": "2ffee5b341474a27bead80c264288fff9d409abe84b7e3dd62c2a43225b71ba1",
+      "previous_hash": "156871780bc85e39d5c7fe03076ae1a3cf956316d9e4634ee13ca72084f51fe7",
+      "encryption_enabled": true
+    }
+  ]
+}
