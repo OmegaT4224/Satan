@@ -1,0 +1,132 @@
+# Security Configuration for VIOLET-AF Quantum Logic Automation System
+
+security:
+  # Scanning Configuration
+  scanning:
+    enabled: true
+    scan_modes:
+      - dependency
+      - code  
+      - quantum
+    scan_schedule: "0 2 * * *"  # Daily at 2 AM UTC
+    max_scan_duration: 3600  # 1 hour timeout
+    
+  # Quantum Circuit Validation
+  quantum_validation:
+    enabled: true
+    max_circuit_depth: 1000
+    max_operations_per_circuit: 10000
+    allowed_operations:
+      - CALL
+      - ML
+      - HALT
+      - LOAD
+      - STORE
+      - ADD
+      - SUB
+      - MUL
+      - DIV
+      - QUANTUM_GATE
+    forbidden_operations:
+      - EXEC
+      - SYSTEM
+      - SHELL
+      - EVAL
+      - IMPORT
+    validate_parameters: true
+    require_signature: false
+    
+  # Encryption Settings
+  encryption:
+    algorithm: "fernet"  # AES-128 in CBC mode
+    key_derivation:
+      algorithm: "pbkdf2"
+      hash_function: "sha256"
+      iterations: 100000
+    asymmetric:
+      algorithm: "rsa"
+      key_size: 2048
+      padding: "oaep"
+    
+  # Logging Configuration
+  logging:
+    enabled: true
+    level: "INFO"
+    encrypt_sensitive: true
+    retention_days: 90
+    max_log_size: "100MB"
+    log_directory: "logs"
+    
+  # Access Control
+  access_control:
+    default_token_expiry: 24  # hours
+    max_failed_attempts: 5
+    lockout_duration: 300  # 5 minutes in seconds
+    session_timeout: 3600  # 1 hour in seconds
+    
+  # Vault Configuration
+  vault:
+    backup_enabled: true
+    backup_interval: "0 0 * * 0"  # Weekly on Sunday
+    backup_retention: 4  # Keep 4 backups
+    auto_cleanup_expired_tokens: true
+    max_state_size: 1048576  # 1MB in bytes
+    
+  # Monitoring and Alerting
+  monitoring:
+    enabled: true
+    alert_on_failures: true
+    metrics_collection: true
+    anomaly_detection: false  # Disabled for basic setup
+    
+  # Integration Security
+  integrations:
+    github:
+      require_token: true
+      validate_webhooks: true
+      rate_limiting: true
+      max_requests_per_minute: 60
+    
+    external_apis:
+      timeout: 30  # seconds
+      retry_attempts: 3
+      verify_ssl: true
+
+# Compliance Settings
+compliance:
+  audit_logging: true
+  data_residency: "US"  # Data residency requirement
+  privacy_mode: false   # Enhanced privacy controls
+  
+# Development Settings (should be disabled in production)
+development:
+  debug_mode: false
+  verbose_logging: false
+  skip_validation: false
+  mock_services: false
+
+# Performance Settings
+performance:
+  max_concurrent_operations: 10
+  operation_timeout: 300  # 5 minutes
+  memory_limit: "512MB"
+  cpu_limit: "2"
+
+# Error Handling
+error_handling:
+  expose_internal_errors: false
+  log_stack_traces: true
+  generic_error_messages: true
+  error_codes_enabled: true
+
+# Network Security
+network:
+  allowed_hosts:
+    - "localhost"
+    - "127.0.0.1"
+    - "api.github.com"
+  blocked_hosts:
+    - "metadata.google.internal"
+    - "169.254.169.254"  # AWS metadata service
+  ssl_verification: true
+  certificate_validation: true

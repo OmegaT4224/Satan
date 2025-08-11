@@ -1,0 +1,147 @@
+{
+  "scan_id": "73d755d3-25b2-4455-b6c6-51a42aa1bcd6",
+  "timestamp": "2025-08-11T16:12:40.875787",
+  "findings": [
+    {
+      "type": "code_security_issue",
+      "severity": "low",
+      "file": "./ece_memory_kernel_repl.py",
+      "line": 150,
+      "pattern": "input(",
+      "description": "Raw input handling should be validated",
+      "code_snippet": "user_input = input(\">> \").strip()",
+      "timestamp": "2025-08-11T16:12:42.146674"
+    },
+    {
+      "type": "code_security_issue",
+      "severity": "high",
+      "file": "./security/scanner.py",
+      "line": 190,
+      "pattern": "eval(",
+      "description": "Use of eval() can execute arbitrary code",
+      "code_snippet": "'eval(': ('high', 'Use of eval() can execute arbitrary code'),",
+      "timestamp": "2025-08-11T16:12:42.148082"
+    },
+    {
+      "type": "code_security_issue",
+      "severity": "high",
+      "file": "./security/scanner.py",
+      "line": 191,
+      "pattern": "exec(",
+      "description": "Use of exec() can execute arbitrary code",
+      "code_snippet": "'exec(': ('high', 'Use of exec() can execute arbitrary code'),",
+      "timestamp": "2025-08-11T16:12:42.148088"
+    },
+    {
+      "type": "code_security_issue",
+      "severity": "medium",
+      "file": "./security/scanner.py",
+      "line": 192,
+      "pattern": "subprocess.call",
+      "description": "Subprocess calls may be vulnerable to injection",
+      "code_snippet": "'subprocess.call': ('medium', 'Subprocess calls may be vulnerable to injection'),",
+      "timestamp": "2025-08-11T16:12:42.148091"
+    },
+    {
+      "type": "code_security_issue",
+      "severity": "high",
+      "file": "./security/scanner.py",
+      "line": 193,
+      "pattern": "os.system",
+      "description": "os.system() calls can execute arbitrary commands",
+      "code_snippet": "'os.system': ('high', 'os.system() calls can execute arbitrary commands'),",
+      "timestamp": "2025-08-11T16:12:42.148094"
+    },
+    {
+      "type": "code_security_issue",
+      "severity": "high",
+      "file": "./security/scanner.py",
+      "line": 194,
+      "pattern": "pickle.loads",
+      "description": "pickle.loads() can execute arbitrary code",
+      "code_snippet": "'pickle.loads': ('high', 'pickle.loads() can execute arbitrary code'),",
+      "timestamp": "2025-08-11T16:12:42.148097"
+    },
+    {
+      "type": "code_security_issue",
+      "severity": "low",
+      "file": "./security/scanner.py",
+      "line": 195,
+      "pattern": "input(",
+      "description": "Raw input handling should be validated",
+      "code_snippet": "'input(': ('low', 'Raw input handling should be validated'),",
+      "timestamp": "2025-08-11T16:12:42.148100"
+    },
+    {
+      "type": "quantum_security_issue",
+      "severity": "medium",
+      "operation": "print(f\"[CALL] Executing {module} as module logic (from memory)\")",
+      "description": "Quantum operation contains suspicious pattern: EXEC",
+      "recommendation": "Validate operation before execution",
+      "timestamp": "2025-08-11T16:12:42.149287"
+    },
+    {
+      "type": "quantum_security_issue",
+      "severity": "medium",
+      "operation": "print(\"ECE Live REPL Initialized. Type instructions (e.g., CALL mantra, ML, HALT). Type 'RUN' to execute. Type 'EXIT' to quit.\")",
+      "description": "Quantum operation contains suspicious pattern: EXEC",
+      "recommendation": "Validate operation before execution",
+      "timestamp": "2025-08-11T16:12:42.149294"
+    },
+    {
+      "type": "quantum_security_issue",
+      "severity": "medium",
+      "operation": "Secure state management vault for VIOLET-AF quantum logic automation system.",
+      "description": "Quantum operation contains suspicious pattern: SYSTEM",
+      "recommendation": "Validate operation before execution",
+      "timestamp": "2025-08-11T16:12:42.149298"
+    },
+    {
+      "type": "quantum_security_issue",
+      "severity": "medium",
+      "operation": "Secure logging with encryption for VIOLET-AF quantum logic automation system.",
+      "description": "Quantum operation contains suspicious pattern: SYSTEM",
+      "recommendation": "Validate operation before execution",
+      "timestamp": "2025-08-11T16:12:42.149307"
+    },
+    {
+      "type": "quantum_security_issue",
+      "severity": "medium",
+      "operation": "Quantum circuit security validation for VIOLET-AF quantum logic automation system.",
+      "description": "Quantum operation contains suspicious pattern: SYSTEM",
+      "recommendation": "Validate operation before execution",
+      "timestamp": "2025-08-11T16:12:42.149312"
+    },
+    {
+      "type": "quantum_security_issue",
+      "severity": "medium",
+      "operation": "Main security scanning engine for VIOLET-AF quantum logic automation system.",
+      "description": "Quantum operation contains suspicious pattern: SYSTEM",
+      "recommendation": "Validate operation before execution",
+      "timestamp": "2025-08-11T16:12:42.149323"
+    },
+    {
+      "type": "quantum_security_issue",
+      "severity": "medium",
+      "operation": "VIOLET-AF Quantum Logic Automation System Security Framework",
+      "description": "Quantum operation contains suspicious pattern: SYSTEM",
+      "recommendation": "Validate operation before execution",
+      "timestamp": "2025-08-11T16:12:42.149337"
+    }
+  ],
+  "status": "completed",
+  "summary": {
+    "total_findings": 14,
+    "severity_breakdown": {
+      "critical": 0,
+      "high": 4,
+      "medium": 8,
+      "low": 2
+    },
+    "finding_types": {
+      "code_security_issue": 7,
+      "quantum_security_issue": 7
+    },
+    "scan_duration": "2025-08-11T16:12:42.149354"
+  }
+}

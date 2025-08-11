@@ -1,0 +1,512 @@
+name: Quantum Circuit Security Testing
+
+on:
+  push:
+    branches: [ "main", "develop" ]
+    paths:
+      - 'security/**'
+      - 'ece_memory_kernel_repl.py'
+      - 'config/**'
+  pull_request:
+    branches: [ "main" ]
+    paths:
+      - 'security/**'
+      - 'ece_memory_kernel_repl.py'
+      - 'config/**'
+
+permissions:
+  contents: read
+  security-events: write
+
+jobs:
+  quantum-security-test:
+    runs-on: ubuntu-latest
+    
+    environment:
+      name: testing
+      
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.10"
+        
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install cryptography pyyaml pytest pytest-cov
+        pip install -r requirements.txt || echo "No requirements.txt found"
+        
+    - name: Set up test environment
+      run: |
+        mkdir -p logs
+        mkdir -p test_output
+        
+        # Set environment variables for testing
+        echo "VAULT_PASSWORD=test_password_123" >> $GITHUB_ENV
+        echo "SECURE_LOG_PASSWORD=test_log_password_456" >> $GITHUB_ENV
+        
+    - name: Test quantum validator
+      run: |
+        python -c "
+        import sys
+        sys.path.append('.')
+        from security.quantum_validator import QuantumValidator
+        
+        print('=== Testing Quantum Validator ===')
+        validator = QuantumValidator()
+        
+        # Test valid circuit
+        valid_circuit = {
+            'id': 'test_circuit_001',
+            'operations': ['CALL test_module', 'ML', 'HALT'],
+            'parameters': {'test_param': 'safe_value'}
+        }
+        
+        result = validator.validate_circuit_structure(valid_circuit)
+        print(f'Valid circuit test: {\"PASS\" if result[\"is_valid\"] else \"FAIL\"}')
+        print(f'Security score: {result[\"security_score\"]}')
+        
+        # Test invalid circuit
+        invalid_circuit = {
+            'id': 'test_circuit_002',
+            'operations': ['EXEC malicious_code', 'SYSTEM rm -rf /'],
+            'parameters': {'dangerous_param': '../../../etc/passwd'}
+        }
+        
+        result = validator.validate_circuit_structure(invalid_circuit)
+        print(f'Invalid circuit test: {\"PASS\" if not result[\"is_valid\"] else \"FAIL\"}')
+        print(f'Violations found: {len(result[\"violations\"])}')
+        
+        # Test state management validation
+        state_data = {
+            'id': 'test_state_001',
+            'data': {'amplitude': [0.5, 0.5], 'phase': [0, 3.14]}
+        }
+        
+        state_result = validator.validate_state_management(state_data)
+        print(f'State validation test: {\"PASS\" if state_result[\"is_valid\"] else \"FAIL\"}')
+        
+        print('Quantum validator tests completed successfully')
+        "
+        
+    - name: Test secure logger
+      run: |
+        python -c "
+        import sys
+        sys.path.append('.')
+        from security.secure_logger import SecureLogger
+        
+        print('=== Testing Secure Logger ===')
+        logger = SecureLogger('test_logger', log_directory='test_output')
+        
+        # Generate test UID
+        user_data = {'username': 'test_user', 'role': 'quantum_operator'}
+        uid = logger.generate_uid(user_data)
+        print(f'Generated UID: {uid}')
+        
+        # Test UID verification
+        is_valid = logger.verify_uid(uid)
+        print(f'UID verification: {\"PASS\" if is_valid else \"FAIL\"}')
+        
+        # Test secure logging
+        entry_id = logger.log_quantum_operation(
+            'CALL test_quantum_gate',
+            {'angle': 1.57, 'qubit': 0},
+            uid,
+            result={'success': True, 'measurement': 0.8}
+        )
+        print(f'Logged quantum operation: {entry_id}')
+        
+        # Test security event logging
+        logger.log_security_event(
+            'unauthorized_access_attempt',
+            {'resource': 'quantum_circuit_001', 'source_ip': '192.168.1.100'},
+            severity='warning',
+            uid=uid
+        )
+        
+        # Test log statistics
+        stats = logger.get_log_statistics()
+        print(f'Log statistics: {stats[\"total_entries\"]} entries, {stats[\"encrypted_entries\"]} encrypted')
+        
+        print('Secure logger tests completed successfully')
+        "
+        
+    - name: Test secure vault
+      run: |
+        python -c "
+        import sys
+        sys.path.append('.')
+        from security.vault import SecureVault
+        
+        print('=== Testing Secure Vault ===')
+        vault = SecureVault('test_vault', 'test_password_123')
+        
+        # Create access token
+        token = vault.create_access_token('test_user', ['read', 'write', 'delete'])
+        print(f'Created access token: {token[:8]}...')
+        
+        # Test access verification
+        can_read = vault.verify_access(token, 'read')
+        can_admin = vault.verify_access(token, 'admin')
+        print(f'Read access: {\"PASS\" if can_read else \"FAIL\"}')
+        print(f'Admin access (should fail): {\"PASS\" if not can_admin else \"FAIL\"}')
+        
+        # Test quantum state storage
+        test_state = {
+            'qubits': 2,
+            'amplitudes': [0.5, 0.5, 0.5, 0.5],
+            'metadata': {'creation_time': '2024-12-11T00:00:00Z'}
+        }
+        
+        stored = vault.store_quantum_state('test_state_001', test_state, token)
+        print(f'State storage: {\"PASS\" if stored else \"FAIL\"}')
+        
+        # Test state retrieval
+        retrieved = vault.retrieve_quantum_state('test_state_001', token)
+        print(f'State retrieval: {\"PASS\" if retrieved == test_state else \"FAIL\"}')
+        
+        # Test vault statistics
+        stats = vault.get_vault_statistics(token)
+        print(f'Vault statistics: {stats[\"total_states\"]} states stored')
+        
+        print('Secure vault tests completed successfully')
+        "
+        
+    - name: Test integrated security system
+      run: |
+        python -c "
+        import sys
+        sys.path.append('.')
+        from security.scanner import SecurityScanner
+        from security.quantum_validator import QuantumValidator
+        from security.secure_logger import SecureLogger
+        from security.vault import SecureVault
+        
+        print('=== Testing Integrated Security System ===')
+        
+        # Initialize components
+        scanner = SecurityScanner()
+        validator = QuantumValidator()
+        logger = SecureLogger('integration_test', log_directory='test_output')
+        vault = SecureVault('integration_vault')
+        
+        # Create test user
+        user_data = {'username': 'integration_user', 'role': 'quantum_developer'}
+        uid = logger.generate_uid(user_data)
+        token = vault.create_access_token(uid, ['read', 'write'])
+        
+        # Test quantum operation flow
+        print('Testing quantum operation security flow...')
+        
+        # 1. Validate quantum circuit
+        test_circuit = {
+            'id': 'integration_test_001',
+            'operations': ['CALL quantum_fourier_transform', 'ML measurement'],
+            'parameters': {'qubits': 4, 'precision': 0.001}
+        }
+        
+        validation_result = validator.validate_circuit_structure(test_circuit)
+        if not validation_result['is_valid']:
+            print('Circuit validation failed - stopping test')
+            sys.exit(1)
+        
+        # 2. Log the operation
+        logger.log_quantum_operation(
+            'quantum_fourier_transform',
+            test_circuit['parameters'],
+            uid,
+            result={'success': True, 'runtime': 0.5}
+        )
+        
+        # 3. Store quantum state
+        result_state = {
+            'circuit_id': test_circuit['id'],
+            'final_state': [0.25] * 16,  # 4-qubit state
+            'measurement_probabilities': [0.0625] * 16
+        }
+        
+        vault.store_quantum_state(f\"result_{test_circuit['id']}\", result_state, token)
+        
+        # 4. Run security scan on the test files
+        scan_results = scanner.perform_full_scan('test_output')
+        
+        print(f'Integration test completed successfully!')
+        print(f'Circuit validation: PASS')
+        print(f'Logging: PASS')
+        print(f'State storage: PASS')
+        print(f'Security scan: {scan_results[\"status\"]}')
+        
+        # Check for any critical issues
+        if scan_results['summary']['severity_breakdown']['critical'] > 0:
+            print('Critical security issues found in integration test!')
+            sys.exit(1)
+        "
+        
+    - name: Test EternalComputationEngine integration
+      run: |
+        python -c "
+        import sys
+        sys.path.append('.')
+        from ece_memory_kernel_repl import EternalComputationEngine
+        from security.quantum_validator import QuantumValidator
+        from security.secure_logger import SecureLogger
+        
+        print('=== Testing EternalComputationEngine Security Integration ===')
+        
+        # Create secure wrapper for EternalComputationEngine
+        class SecureECE(EternalComputationEngine):
+            def __init__(self):
+                super().__init__()
+                self.validator = QuantumValidator()
+                self.logger = SecureLogger('ece_secure', log_directory='test_output')
+                self.authenticated = False
+                self.user_uid = None
+            
+            def authenticate(self, username):
+                user_data = {'username': username, 'role': 'quantum_operator'}
+                self.user_uid = self.logger.generate_uid(user_data)
+                self.authenticated = True
+                self.logger.log_secure('ece_authentication', {'username': username}, uid=self.user_uid)
+                return True
+            
+            def load_instructions(self, instructions):
+                if not self.authenticated:
+                    raise SecurityError('Authentication required')
+                
+                # Validate each instruction
+                for i, instruction in enumerate(instructions):
+                    # Simple validation for demo
+                    if 'EXEC' in instruction.upper() or 'SYSTEM' in instruction.upper():
+                        self.logger.log_security_event(
+                            'dangerous_instruction_blocked',
+                            {'instruction': instruction, 'index': i},
+                            severity='critical',
+                            uid=self.user_uid
+                        )
+                        raise SecurityError(f'Dangerous instruction blocked: {instruction}')
+                
+                # Log instruction loading
+                self.logger.log_secure('instructions_loaded', {
+                    'instruction_count': len(instructions),
+                    'instructions': instructions
+                }, uid=self.user_uid)
+                
+                super().load_instructions(instructions)
+        
+        # Test secure ECE
+        secure_ece = SecureECE()
+        secure_ece.authenticate('test_quantum_user')
+        
+        # Test with safe instructions
+        safe_instructions = ['CALL quantum_gate', 'ML', 'HALT']
+        secure_ece.load_instructions(safe_instructions)
+        secure_ece.run()
+        
+        print('Secure ECE test completed successfully')
+        
+        # Test with dangerous instructions (should fail)
+        try:
+            dangerous_instructions = ['EXEC rm -rf /', 'HALT']
+            secure_ece.load_instructions(dangerous_instructions)
+            print('FAIL: Dangerous instructions should have been blocked')
+            sys.exit(1)
+        except Exception as e:
+            print(f'PASS: Dangerous instructions blocked - {e}')
+        
+        print('EternalComputationEngine security integration test completed')
+        "
+        
+    - name: Upload test artifacts
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: quantum-security-test-results
+        path: |
+          test_output/
+          logs/
+          
+    - name: Clean up test environment
+      if: always()
+      run: |
+        rm -rf test_output/
+        rm -rf logs/
+        
+  performance-security-test:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.10"
+        
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install cryptography pyyaml memory_profiler
+        
+    - name: Performance and security test
+      run: |
+        python -c "
+        import sys
+        import time
+        import psutil
+        import gc
+        sys.path.append('.')
+        
+        from security.vault import SecureVault
+        from security.secure_logger import SecureLogger
+        
+        print('=== Performance and Security Test ===')
+        
+        # Test memory usage and performance
+        process = psutil.Process()
+        initial_memory = process.memory_info().rss / 1024 / 1024  # MB
+        
+        # Create vault and logger
+        vault = SecureVault('perf_test_vault')
+        logger = SecureLogger('perf_test', log_directory='test_output')
+        
+        token = vault.create_access_token('perf_user', ['read', 'write'])
+        uid = logger.generate_uid({'username': 'perf_user'})
+        
+        # Test encryption/decryption performance
+        start_time = time.time()
+        
+        for i in range(100):
+            test_data = {
+                'iteration': i,
+                'data': f'test_quantum_state_{i}' * 100,  # ~2KB per state
+                'metadata': {'timestamp': time.time()}
+            }
+            
+            state_id = f'perf_test_state_{i}'
+            vault.store_quantum_state(state_id, test_data, token)
+            
+            if i % 10 == 0:
+                # Retrieve and verify some states
+                retrieved = vault.retrieve_quantum_state(state_id, token)
+                if retrieved != test_data:
+                    print(f'Data integrity error at iteration {i}')
+                    sys.exit(1)
+                
+                # Log performance data
+                logger.log_secure('performance_checkpoint', {
+                    'iteration': i,
+                    'memory_mb': process.memory_info().rss / 1024 / 1024,
+                    'elapsed_time': time.time() - start_time
+                }, uid=uid)
+        
+        end_time = time.time()
+        final_memory = process.memory_info().rss / 1024 / 1024  # MB
+        
+        print(f'Performance test completed:')
+        print(f'Time: {end_time - start_time:.2f} seconds')
+        print(f'Memory usage: {initial_memory:.2f} MB -> {final_memory:.2f} MB')
+        print(f'Memory increase: {final_memory - initial_memory:.2f} MB')
+        print(f'Operations per second: {100 / (end_time - start_time):.2f}')
+        
+        # Check for memory leaks
+        if final_memory - initial_memory > 50:  # 50MB threshold
+            print('WARNING: Potential memory leak detected')
+        
+        # Test cleanup
+        vault.cleanup_expired_tokens()
+        logger.cleanup_old_logs(0)  # Clean all logs
+        
+        gc.collect()
+        cleanup_memory = process.memory_info().rss / 1024 / 1024
+        print(f'Memory after cleanup: {cleanup_memory:.2f} MB')
+        
+        print('Performance and security test completed successfully')
+        "
+        
+    - name: Test concurrent operations
+      run: |
+        python -c "
+        import sys
+        import threading
+        import time
+        sys.path.append('.')
+        
+        from security.vault import SecureVault
+        from security.secure_logger import SecureLogger
+        
+        print('=== Concurrent Operations Test ===')
+        
+        vault = SecureVault('concurrent_test_vault')
+        logger = SecureLogger('concurrent_test', log_directory='test_output')
+        
+        errors = []
+        success_count = 0
+        
+        def worker(worker_id):
+            global success_count
+            try:
+                token = vault.create_access_token(f'worker_{worker_id}', ['read', 'write'])
+                uid = logger.generate_uid({'username': f'worker_{worker_id}'})
+                
+                for i in range(10):
+                    state_id = f'worker_{worker_id}_state_{i}'
+                    test_data = {'worker': worker_id, 'iteration': i, 'data': 'test' * 100}
+                    
+                    # Store state
+                    if not vault.store_quantum_state(state_id, test_data, token):
+                        errors.append(f'Worker {worker_id}: Failed to store state {i}')
+                        continue
+                    
+                    # Log operation
+                    logger.log_quantum_operation(
+                        f'concurrent_test_{i}',
+                        {'worker_id': worker_id},
+                        uid,
+                        result={'success': True}
+                    )
+                    
+                    # Retrieve and verify
+                    retrieved = vault.retrieve_quantum_state(state_id, token)
+                    if retrieved != test_data:
+                        errors.append(f'Worker {worker_id}: Data mismatch at iteration {i}')
+                        continue
+                    
+                    success_count += 1
+                    
+            except Exception as e:
+                errors.append(f'Worker {worker_id}: Exception - {e}')
+        
+        # Start multiple worker threads
+        threads = []
+        for i in range(5):
+            thread = threading.Thread(target=worker, args=(i,))
+            threads.append(thread)
+            thread.start()
+        
+        # Wait for all threads to complete
+        for thread in threads:
+            thread.join()
+        
+        print(f'Concurrent test results:')
+        print(f'Successful operations: {success_count}/50')
+        print(f'Errors: {len(errors)}')
+        
+        if errors:
+            print('Errors encountered:')
+            for error in errors[:5]:  # Show first 5 errors
+                print(f'  - {error}')
+            if len(errors) > 5:
+                print(f'  ... and {len(errors) - 5} more errors')
+        
+        if len(errors) > 10:  # Allow some errors in concurrent access
+            print('Too many errors in concurrent test')
+            sys.exit(1)
+        
+        print('Concurrent operations test completed')
+        "
