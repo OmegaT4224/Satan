@@ -1,0 +1,79 @@
+{
+  "encryption_keys": {
+    "description": "Encrypted key storage template for VIOLET-AF quantum system",
+    "version": "1.0",
+    "created_at": "TEMPLATE_FILE",
+    "key_derivation": {
+      "algorithm": "pbkdf2",
+      "iterations": 100000,
+      "salt_size": 16
+    },
+    "keys": {
+      "vault_master_key": {
+        "encrypted": true,
+        "algorithm": "fernet",
+        "description": "Master key for vault encryption",
+        "created_at": "TEMPLATE_FILE",
+        "key_id": "vault_master_001",
+        "purpose": "vault_encryption",
+        "value": "ENCRYPTED_KEY_PLACEHOLDER"
+      },
+      "logging_key": {
+        "encrypted": true,
+        "algorithm": "fernet", 
+        "description": "Key for secure logging encryption",
+        "created_at": "TEMPLATE_FILE",
+        "key_id": "logging_001",
+        "purpose": "log_encryption",
+        "value": "ENCRYPTED_KEY_PLACEHOLDER"
+      },
+      "quantum_state_key": {
+        "encrypted": true,
+        "algorithm": "fernet",
+        "description": "Key for quantum state data encryption",
+        "created_at": "TEMPLATE_FILE", 
+        "key_id": "quantum_001",
+        "purpose": "quantum_state_encryption",
+        "value": "ENCRYPTED_KEY_PLACEHOLDER"
+      }
+    },
+    "asymmetric_keys": {
+      "rsa_master": {
+        "public_key_pem": "-----BEGIN PUBLIC KEY-----\n[ENCRYPTED_PUBLIC_KEY_PLACEHOLDER]\n-----END PUBLIC KEY-----",
+        "private_key_encrypted": true,
+        "key_size": 2048,
+        "algorithm": "rsa",
+        "created_at": "TEMPLATE_FILE",
+        "key_id": "rsa_master_001",
+        "purpose": "hybrid_encryption",
+        "private_key_value": "ENCRYPTED_PRIVATE_KEY_PLACEHOLDER"
+      }
+    },
+    "backup_keys": {
+      "enabled": true,
+      "encryption_key_id": "vault_master_001",
+      "backup_frequency": "weekly",
+      "retention_period": "1_year"
+    }
+  },
+  "security_metadata": {
+    "last_rotation": "TEMPLATE_FILE",
+    "next_rotation": "TEMPLATE_FILE",
+    "rotation_policy": "90_days",
+    "access_log": []
+  },
+  "warnings": [
+    "THIS IS A TEMPLATE FILE - Copy to encryption_keys.json and replace placeholders with actual encrypted keys",
+    "The actual encryption_keys.json file should never be committed to version control",
+    "All keys must be encrypted using environment-derived passwords",
+    "Key rotation should be performed according to security policy",
+    "Access to encryption keys should be logged and monitored"
+  ],
+  "setup_instructions": [
+    "1. Copy this file to config/encryption_keys.json",
+    "2. Set environment variables: VAULT_PASSWORD, SECURE_LOG_PASSWORD", 
+    "3. Run key generation script to populate encrypted keys",
+    "4. Verify .gitignore excludes config/encryption_keys.json",
+    "5. Test security module initialization"
+  ]
+}

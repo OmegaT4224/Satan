@@ -1,0 +1,226 @@
+name: Security Scan
+
+on:
+  push:
+    branches: [ "main", "develop" ]
+  pull_request:
+    branches: [ "main" ]
+  schedule:
+    - cron: '0 2 * * *'  # Daily at 2 AM UTC
+
+permissions:
+  contents: read
+  security-events: write
+  pull-requests: write
+
+jobs:
+  security-scan:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.10"
+        
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt || echo "No requirements.txt found"
+        pip install bandit safety semgrep cryptography pyyaml
+        
+    - name: Run Bandit security scan
+      run: |
+        bandit -r . -f json -o bandit-report.json || true
+        bandit -r . -f txt || true
+        
+    - name: Run Safety dependency check
+      run: |
+        safety check --json --output safety-report.json || true
+        safety check || true
+        
+    - name: Run custom security scanner
+      run: |
+        python -c "
+        import sys
+        sys.path.append('.')
+        from security.scanner import SecurityScanner
+        
+        scanner = SecurityScanner()
+        results = scanner.perform_full_scan('.')
+        
+        print('=== Security Scan Results ===')
+        print(f'Scan ID: {results[\"scan_id\"]}')
+        print(f'Total findings: {results[\"summary\"][\"total_findings\"]}')
+        print(f'Critical: {results[\"summary\"][\"severity_breakdown\"][\"critical\"]}')
+        print(f'High: {results[\"summary\"][\"severity_breakdown\"][\"high\"]}')
+        print(f'Medium: {results[\"summary\"][\"severity_breakdown\"][\"medium\"]}')
+        print(f'Low: {results[\"summary\"][\"severity_breakdown\"][\"low\"]}')
+        
+        # Export results
+        scanner.export_results('security-scan-results.json')
+        
+        # Fail if critical issues found
+        if results['summary']['severity_breakdown']['critical'] > 0:
+            print('CRITICAL SECURITY ISSUES FOUND!')
+            sys.exit(1)
+        "
+        
+    - name: Upload security scan results
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: security-scan-results
+        path: |
+          bandit-report.json
+          safety-report.json
+          security-scan-results.json
+          
+    - name: Comment PR with security results
+      if: github.event_name == 'pull_request'
+      uses: actions/github-script@v6
+      with:
+        script: |
+          const fs = require('fs');
+          
+          try {
+            const results = JSON.parse(fs.readFileSync('security-scan-results.json', 'utf8'));
+            const summary = results.summary;
+            
+            const comment = `## 🔒 Security Scan Results
+            
+            **Scan ID:** \`${results.scan_id}\`
+            **Status:** ${results.status}
+            
+            ### Summary
+            - **Total Findings:** ${summary.total_findings}
+            - **Critical:** ${summary.severity_breakdown.critical} 🔴
+            - **High:** ${summary.severity_breakdown.high} 🟠  
+            - **Medium:** ${summary.severity_breakdown.medium} 🟡
+            - **Low:** ${summary.severity_breakdown.low} 🟢
+            
+            ${summary.severity_breakdown.critical > 0 ? '⚠️ **Critical security issues found!** Please review and fix before merging.' : '✅ No critical security issues detected.'}
+            
+            <details>
+            <summary>Finding Types</summary>
+            
+            ${Object.entries(summary.finding_types).map(([type, count]) => `- ${type}: ${count}`).join('\n')}
+            
+            </details>`;
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });
+          } catch (error) {
+            console.log('Could not read security scan results:', error.message);
+          }
+
+  code-quality:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.10"
+        
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install flake8 pylint mypy black isort
+        pip install -r requirements.txt || echo "No requirements.txt found"
+        
+    - name: Run flake8
+      run: |
+        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+        flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+        
+    - name: Run pylint
+      run: |
+        pylint security/ --exit-zero --output-format=json > pylint-report.json || true
+        pylint security/ --exit-zero
+        
+    - name: Run mypy type checking
+      run: |
+        mypy security/ --ignore-missing-imports --no-strict-optional || true
+        
+    - name: Check code formatting
+      run: |
+        black --check --diff . || true
+        isort --check-only --diff . || true
+
+  vulnerability-database:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.10"
+        
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install pip-audit
+        pip install -r requirements.txt || echo "No requirements.txt found"
+        
+    - name: Run pip-audit
+      run: |
+        pip-audit --format=json --output=pip-audit-report.json || true
+        pip-audit || true
+        
+    - name: Upload vulnerability reports
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: vulnerability-reports
+        path: |
+          pip-audit-report.json
+          pylint-report.json
+
+  secrets-scan:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      
+    - name: Run TruffleHog secrets scan
+      uses: trufflesecurity/trufflehog@main
+      with:
+        path: ./
+        base: main
+        head: HEAD
+        extra_args: --debug --only-verified
+        
+    - name: Check for hardcoded secrets
+      run: |
+        # Check for common secret patterns
+        echo "Checking for hardcoded secrets..."
+        
+        # Check for API keys, passwords, tokens
+        if grep -r -E "(password|passwd|pwd)\s*=\s*['\"][^'\"]{8,}" . --exclude-dir=.git --exclude-dir=__pycache__ || true; then
+          echo "⚠️ Potential hardcoded passwords found"
+        fi
+        
+        if grep -r -E "(api_key|apikey|api-key)\s*=\s*['\"][^'\"]{10,}" . --exclude-dir=.git --exclude-dir=__pycache__ || true; then
+          echo "⚠️ Potential hardcoded API keys found"
+        fi
+        
+        if grep -r -E "(secret|token)\s*=\s*['\"][^'\"]{16,}" . --exclude-dir=.git --exclude-dir=__pycache__ || true; then
+          echo "⚠️ Potential hardcoded secrets found"
+        fi
+        
+        echo "Secrets scan completed"

@@ -1,0 +1,26 @@
+# Core dependencies for VIOLET-AF Quantum Logic Automation System
+cryptography>=41.0.0
+PyYAML>=6.0.1
+
+# Optional dependencies for enhanced security features
+# Uncomment as needed for production deployment
+
+# For advanced vulnerability scanning
+# bandit>=1.7.5
+# safety>=2.3.0
+# semgrep>=1.0.0
+
+# For performance monitoring
+# psutil>=5.9.0
+# memory-profiler>=0.61.0
+
+# For testing
+# pytest>=7.4.0
+# pytest-cov>=4.1.0
+
+# For code quality
+# flake8>=6.0.0
+# pylint>=2.17.0
+# mypy>=1.5.0
+# black>=23.7.0
+# isort>=5.12.0
