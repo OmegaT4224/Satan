@@ -1,0 +1,79 @@
+{
+  "manifest_version": 3,
+  "name": "VIOLET-AF",
+  "version": "1.0.0",
+  "description": "VIOLET-AF Autonomous Quantum Logic Implementation",
+  "uid": "ALC-ROOT-1010-1111-XCOV\u221e",
+  "domain": "Kidhum",
+  "author": "Andrew Lee Cruz",
+  "permissions": [
+    "quantum_execution",
+    "reflect_logging",
+    "automation_control",
+    "kidhum_deployment"
+  ],
+  "quantum_config": {
+    "circuit_type": "VIOLET-AF",
+    "qubits": 3,
+    "gates": [
+      "H",
+      "CNOT",
+      "Z"
+    ],
+    "measurement_enabled": true,
+    "state_vector_enabled": true
+  },
+  "automation_features": {
+    "symbolic_recursion": true,
+    "task_tree_interpretation": true,
+    "dynamic_control_flow": true,
+    "github_integration": true
+  },
+  "security": {
+    "drgn_flame_cert": {
+      "enabled": false,
+      "cert_validation": "optional"
+    },
+    "uid_verification": true,
+    "domain_validation": "Kidhum"
+  },
+  "deployment": {
+    "kidhum_hook": true,
+    "auto_deploy": false,
+    "deploy_command": "kidhum deploy --uid=ALC-ROOT-1010-1111-XCOV\u221e"
+  },
+  "icons": {
+    "16": "icons/violet-16.png",
+    "32": "icons/violet-32.png",
+    "48": "icons/violet-48.png",
+    "128": "icons/violet-128.png"
+  },
+  "background": {
+    "service_worker": "background.js",
+    "persistent": true
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "<all_urls>"
+      ],
+      "js": [
+        "content.js"
+      ],
+      "run_at": "document_end"
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "quantum/*",
+        "config/*"
+      ],
+      "matches": [
+        "<all_urls>"
+      ]
+    }
+  ],
+  "generated_timestamp": "2025-08-08T17:32:28.860888",
+  "generator": "VIOLET-AF ContentWriter ALC-ROOT-1010-1111-XCOV\u221e"
+}
